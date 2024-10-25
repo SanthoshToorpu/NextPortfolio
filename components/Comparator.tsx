@@ -9,8 +9,8 @@ export function CompareDemo() {
         secondVideo="/Before2.mp4"
         firstImageClassName="object-cover object-left-top"
         secondImageClassname="object-cover object-left-top"
-        className="h-[250px] w-[200px] md:h-[100vh] md:w-[75vw]"
-        slideMode="hover"
+        className="h-[250px] w-[200px] md:h-[100vh] md:w-full"
+        slideMode="drag"
         autoplay
       />
     </div>

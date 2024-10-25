@@ -23,19 +23,21 @@ import { IconWorld } from "@tabler/icons-react";
 import { IconCommand } from "@tabler/icons-react";
 import { IconCaretLeftFilled } from "@tabler/icons-react";
 import { IconCaretDownFilled } from "@tabler/icons-react";
-import { FaGithub } from "react-icons/fa";
-import { FaLinkedin } from "react-icons/fa";
+
 import Image from "next/image";
 import { Button } from "./buttons";
 import { FlipWords } from "./flip-words";
+import {  SkillsDemo } from "./skills";
 
 export const MacbookScroll = ({
   src,
+  newSrc,
   showGradient,
   title,
   badge,
 }: {
-  src?: string;
+  src: string;
+  newSrc: string;
   showGradient?: boolean;
   title?: string | React.ReactNode;
   badge?: React.ReactNode;
@@ -53,43 +55,72 @@ export const MacbookScroll = ({
       setIsMobile(true);
     }
   }, []);
+
+  const [translateEnd, setTranslateEnd] = useState(0);
+
+  useEffect(() => {
+    // Set the initial value for translateEnd based on screen width
+    const updateTranslateEnd = () => {
+      const screenWidth = window.innerWidth;
+    
+      if (screenWidth < 768) {
+        // Mobile screens
+        setTranslateEnd(screenWidth * 2.2);
+      } else if (screenWidth >= 768 && screenWidth < 1024) {
+        // Tablet screens
+        setTranslateEnd(screenWidth * 0.46);
+      } else if (screenWidth >= 1024 && screenWidth < 1920) {
+        // Laptop screens
+        setTranslateEnd(screenWidth * 0.46);
+      } else {
+        // Larger desktop screens
+        setTranslateEnd(screenWidth * 0.38);
+      }
+    };
+    
+
+    updateTranslateEnd(); // Call initially
+    window.addEventListener("resize", updateTranslateEnd); // Update on resize
+
+    return () => window.removeEventListener("resize", updateTranslateEnd);
+  }, []);
+
+
   const scaleX = useTransform(
     scrollYProgress,
-    [0, 0.02], // Adjusted input range to terminate sooner
-    [1.2, isMobile ? 1.2 : 1.5] // Adjusted output values
+    [0, 0.1],
+    [1.2, isMobile ? 1 : 1.5]
   );
   const scaleY = useTransform(
     scrollYProgress,
-    [0, 0.5], // Adjusted input range to terminate sooner
-    [0.6, isMobile ? 1.2 : 1.5] // Adjusted output values
+    [0, 0.1],
+    [0.6, isMobile ? 1 : 1.5]
   );
-  const translate = useTransform(scrollYProgress, [0, 1.5], [0, 1900]); // Adjusted range to stop sooner
-  const rotate = useTransform(scrollYProgress, [0.005, 0.05, 0.5], [-28, -28, 0]);
-  
-  
-  // const scaleX = useTransform(
-  //   scrollYProgress,
-  //   [0, 0.2], // Adjusted to a shorter range for faster scaling
-  //   [1.2, isMobile ? 1 : 1.5]
-  // );
-  // const scaleY = useTransform(
-  //   scrollYProgress,
-  //   [0, 0.2], // Adjusted to a shorter range for faster scaling
-  //   [0.6, isMobile ? 1 : 1.5]
-  // );
-  // const translate = useTransform(scrollYProgress, [0, 1], [0, 1500]);
-  
-  // // Adjusted range for faster flip
-  // const rotate = useTransform(scrollYProgress, [0.05, 0.1], [-28, 0]); // The flip now occurs between 0.05 and 0.1 for a faster flip
-  
+  const translate = useTransform(scrollYProgress, [0, 0.4], [0, translateEnd]);
+  const rotate = useTransform(scrollYProgress, [0, 0.04, 0.3], [-28, -28, 0]);
   const textTransform = useTransform(scrollYProgress, [0, 0.3], [0, 100]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+ 
   
+  const { scrollY } = useScroll();
+  const [currentSrc, setCurrentSrc] = useState(src);
 
+  useEffect(() => {
+    // Update the image source when scroll position reaches 650 pixels
+    const unsubscribe = scrollY.onChange((latestScrollY) => {
+      if (latestScrollY > 900) {
+        setCurrentSrc(newSrc); // Change to new image source
+      } else {
+        setCurrentSrc(src); // Revert to original image source
+      }
+    });
+    // Cleanup subscription on component unmount
+    return () => unsubscribe();
+  }, [scrollY, src, newSrc]);
   return (
     <div
       ref={ref}
-      className="min-h-[250vh] flex flex-col items-center py-0 md:pt-40 justify-start flex-shrink-0 [perspective:800px] transform md:scale-100 scale-[0.35] sm:scale-50"
+      className="h-[150vh] md:min-h-[230vh] 3xl:min-h-[180vh] flex flex-col items-center py-0 md:pt-40 justify-start flex-shrink-0 [perspective:800px] transform md:scale-100 scale-[0.35] sm:scale-50"
     >
       <motion.h2
         style={{
@@ -100,34 +131,15 @@ export const MacbookScroll = ({
       >
         {title || (
           <span>
-            <span className="bg-gradient-to-r from-purple-400 to-pink-500 text-transparent bg-clip-text animate-text">Santhosh Toorpu </span>is a<br />
+            <span className="bg-gradient-to-r from-purple-400 to-pink-500 text-transparent bg-clip-text animate-text m">Santhosh Toorpu </span>is a<br />
           <FlipWords words={["Software Engineer", "Machine Learning Engineer", "Web Developer"]}/>
           </span>
         )}
-        <div className="flex pt-8 justify-center gap-10">
-
-        <Button
-        borderRadius="1.75rem"
-        className="bg-white dark:bg-slate-900 text-black dark:text-white border-neutral-200 dark:border-slate-800"
-      >
-        <FaLinkedin className="mr-4 h-6 w-6" /> LinkedIn
-      </Button>
-      
-      <Button
-        borderRadius="1.75rem"
-        className="bg-white dark:bg-slate-900 text-black dark:text-white border-neutral-200 dark:border-slate-800"
-      >
-       <FaGithub className="mr-4 h-6 w-6" /> Github
-      </Button>
-
-        </div>
       </motion.h2>
-      <div className="flex">
-      
-      </div>
+      {/* <SkillsDemo /> */}
       {/* Lid */}
       <Lid
-        src={src}
+        currentSrc={currentSrc}
         scaleX={scaleX}
         scaleY={scaleY}
         rotate={rotate}
@@ -153,11 +165,13 @@ export const MacbookScroll = ({
         <Trackpad />
         <div className="h-2 w-20 mx-auto inset-x-0 absolute bottom-0 bg-gradient-to-t from-[#272729] to-[#050505] rounded-tr-3xl rounded-tl-3xl" />
         {showGradient && (
-          <div className="h-40 w-full absolute bottom-0 inset-x-0 bg-gradient-to-t dark:from-black from-white via-white dark:via-black to-transparent z-50"></div>
+          <div className="h-20 w-full absolute bottom-0 inset-x-0 bg-gradient-to-t dark:from-black from-white via-white dark:via-black to-transparent z-50"></div>
         )}
         {badge && <div className="absolute bottom-4 left-4">{badge}</div>}
       </div>
-      
+      <h1 className="pt-5 text-4xl font-bold items-center">See the big picture</h1>
+        <h1 className="max-w-3xl text-center ">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem perferendis veritatis libero commodi nobis expedita architecto debitis ratione quasi excepturi!</h1>
+        <h1 className="max-w-3xl text-center absolute bottom-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem perferendis veritatis libero commodi nobis expedita architecto debitis ratione quasi excepturi!</h1>
     </div>
   );
 };
@@ -167,13 +181,13 @@ export const Lid = ({
   scaleY,
   rotate,
   translate,
-  src,
+  currentSrc,
 }: {
   scaleX: MotionValue<number>;
   scaleY: MotionValue<number>;
   rotate: MotionValue<number>;
   translate: MotionValue<number>;
-  src?: string;
+  currentSrc: string;
 }) => {
   return (
     <div className="relative [perspective:800px]">
@@ -209,7 +223,7 @@ export const Lid = ({
       >
         <div className="absolute inset-0 bg-[#272729] rounded-lg" />
         <Image
-          src={src as string}
+          src={currentSrc}
           alt="aceternity logo"
           fill
           className="object-cover object-left-top absolute rounded-lg inset-0 h-full w-full"

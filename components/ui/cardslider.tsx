@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState, createContext, useContext } from "react";
 import { IconArrowNarrowLeft, IconArrowNarrowRight } from "@tabler/icons-react";
-import { AnimatePresence, motion } from "framer-motion";
+import {  motion } from "framer-motion";
 import { cn } from "@/utils/cn";
 interface CarouselProps {
   items: JSX.Element[];
